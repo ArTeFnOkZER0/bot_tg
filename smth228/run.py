@@ -1,7 +1,7 @@
 from aiogram import Bot, Dispatcher
 import logging
 import asyncio
-from config import TOKEN
+from smth228.config import TOKEN
 from smth228.app.handlers import router
 
 
