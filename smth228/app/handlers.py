@@ -4,7 +4,7 @@ from aiogram import F, Router
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from smth228.app import keyboards as kb
-from smth228.app.Middleware import LoggingMiddleware
+from smth228.app.middleware import LoggingMiddleware
 
 
 router = Router()
