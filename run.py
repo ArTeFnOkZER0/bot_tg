@@ -5,16 +5,12 @@ from config import TOKEN
 from smth228.app.handlers import router
 
 
-bot = Bot(token=TOKEN)
-dp = Dispatcher()
-
-
-dp.include_router(router)
-
-
 async def main():
     while True:
         try:
+            bot = Bot(token=TOKEN)
+            dp = Dispatcher()
+            dp.include_router(router)
             await dp.start_polling(bot)
         except Exception as e:
             logging.error(f"Ошибка: {e}. Перезапуск через 5 сек...")
