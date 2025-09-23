@@ -42,24 +42,6 @@ async def start_cmd(message: Message):
 # await message.answer("Если найдешь ошибки жми ----> /report")
 
 
-# @router.message(F.text.lower() == "расскажи анекдот")
-# async def joke(message: Message):
-#     if message.from_user.username:
-#         await message.answer(
-#             f'Идут по лесу Дюймовочка, Белоснежка и xуеcoc \nДюймовочка говорит: "Я самая маленькая на Земле. '
-#             '\nБелоснежка говорит: "Я самая красивая на свете." \nXуеcoc говорит: "Я больше всех отсосал xyёв." '
-#             '\nИдут они, идут, и заходят в Дом Правды. \nДюймовочка в слезах выбегает и говорит: "Ну как так? Я не самая маленькая. Меньше меня мальчик-с-пальчик."'
-#             '\n Белоснежка тоже выбегает в слезах и кричит: "О, боже, я не самая красивая. Красивее меня Спящая Красавица."'
-#             f'\nВыходит злой хyecос и говорит: "Cyкa, а кто такой @{message.from_user.username}?!"')
-#     else:
-#         await message.answer(
-#             f'Идут по лесу Дюймовочка, Белоснежка и xуеcoc \nДюймовочка говорит: "Я самая маленькая на Земле. '
-#             '\nБелоснежка говорит: "Я самая красивая на свете." \nXуеcoc говорит: "Я больше всех отсосал xyёв." '
-#             '\nИдут они, идут, и заходят в Дом Правды. \nДюймовочка в слезах выбегает и говорит: "Ну как так? Я не самая маленькая. Меньше меня мальчик-с-пальчик."'
-#             '\n Белоснежка тоже выбегает в слезах и кричит: "О, боже, я не самая красивая. Красивее меня Спящая Красавица."'
-#             f'\nВыходит злой хyecос и говорит: "Cyкa, а кто такой автор этого бота?!"')
-
-
 async def is_admin(message: Message, bot: Bot) -> bool:
     """Проверяет, является ли пользователь админом чата"""
     member = await bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)
@@ -67,8 +49,11 @@ async def is_admin(message: Message, bot: Bot) -> bool:
 
 
 @router.message(F.text == "/poll")
-async def create_poll1(message: Message, state: FSMContext):
+async def create_poll1(message: Message, state: FSMContext, bot: Bot):
     """Создаём опрос"""
+    if not await is_admin(message, bot):
+        await message.answer("У вас нет прав на эту команду.")
+        return
     global last_poll_id
     last_poll_id = set()
     await state.set_state(Poll.question)
@@ -141,6 +126,24 @@ async def poll_stats(message: Message, bot: Bot):
         f"Не проголосовали: {not_voted} человек ({percent_not:.1f}%)")
 
 
+# @router.message(F.text.lower() == "расскажи анекдот")
+# async def joke(message: Message):
+#     if message.from_user.username:
+#         await message.answer(
+#             f'Идут по лесу Дюймовочка, Белоснежка и xуеcoc \nДюймовочка говорит: "Я самая маленькая на Земле. '
+#             '\nБелоснежка говорит: "Я самая красивая на свете." \nXуеcoc говорит: "Я больше всех отсосал xyёв." '
+#             '\nИдут они, идут, и заходят в Дом Правды. \nДюймовочка в слезах выбегает и говорит: "Ну как так? Я не самая маленькая. Меньше меня мальчик-с-пальчик."'
+#             '\n Белоснежка тоже выбегает в слезах и кричит: "О, боже, я не самая красивая. Красивее меня Спящая Красавица."'
+#             f'\nВыходит злой хyecос и говорит: "Cyкa, а кто такой @{message.from_user.username}?!"')
+#     else:
+#         await message.answer(
+#             f'Идут по лесу Дюймовочка, Белоснежка и xуеcoc \nДюймовочка говорит: "Я самая маленькая на Земле. '
+#             '\nБелоснежка говорит: "Я самая красивая на свете." \nXуеcoc говорит: "Я больше всех отсосал xyёв." '
+#             '\nИдут они, идут, и заходят в Дом Правды. \nДюймовочка в слезах выбегает и говорит: "Ну как так? Я не самая маленькая. Меньше меня мальчик-с-пальчик."'
+#             '\n Белоснежка тоже выбегает в слезах и кричит: "О, боже, я не самая красивая. Красивее меня Спящая Красавица."'
+#             f'\nВыходит злой хyecос и говорит: "Cyкa, а кто такой автор этого бота?!"')
+#
+#
 # @router.message(Command("reg"))
 # async def reg_st1(message: Message, state: FSMContext):
 #     await state.set_state(Reg.name)
