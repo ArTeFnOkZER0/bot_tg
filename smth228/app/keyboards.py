@@ -1,4 +1,5 @@
-# from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from .handlers import group_chats
 #
 # main = ReplyKeyboardMarkup(keyboard=[
 #     [KeyboardButton(text='какая-то кнопка')],
@@ -10,3 +11,4 @@
 # settings = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="ага", callback_data="aga")]])
 # asd = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="хз", callback_data="zxc")],
 #                                             [InlineKeyboardButton(text="хз2", callback_data="zxc")]])
+

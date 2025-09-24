@@ -1,12 +1,11 @@
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message
+from aiogram.types import Message, MessageReactionUpdated, PollAnswer
 # CallbackQuery
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 # from smth228.app import keyboards as kb
 from smth228.app.middleware import LoggingMiddleware
 from aiogram import Router, F, Bot
-from aiogram.types import PollAnswer
 
 
 router = Router()
@@ -24,9 +23,9 @@ class Poll(StatesGroup):
     options = State()
 
 
-# Храним только последний опрос
 last_poll_id: str | None = None
 voters: set[str] = set()
+user_react: set[str] = set()
 
 
 # и
@@ -37,9 +36,35 @@ voters: set[str] = set()
 # reply_markup=kb.main
 @router.message(CommandStart())
 async def start_cmd(message: Message):
-    await message.answer("Привет! Я бот и готов к работе 😎. Я умею взаимодействовать с твоими опросами и реакциями "
-                         "на сообщения.Если найдешь ошибки жми ----> /report")
+    if message.chat.type == "private":
+        await message.answer("Привет! Я бот и готов к работе 😎. Я умею взаимодействовать с твоими опросами и реакциями "
+                             "на сообщения.Если найдешь ошибки жми ----> /report")
 # await message.answer("Если найдешь ошибки жми ----> /report")
+
+
+@router.message_reaction()
+async def reaction_handler(event: MessageReactionUpdated):
+    user_r = event.user  # кто поставил реакцию
+    user_identifier = user_r.username or str(user_r.id)
+    if user_identifier not in user_react:
+        user_react.add(user_identifier)
+
+
+@router.message(F.text == "+")
+async def plus_handler(message: Message):
+    user_plus = message.from_user  # кто поставил реакцию
+    user_identifier = user_plus.username or str(user_plus.id)
+    if user_identifier not in user_react:
+        user_react.add(user_identifier)
+
+
+@router.message(Command("rstats"))
+async def react_stats(message: Message, bot: Bot):
+    if not await is_admin(message, bot):
+        await message.answer("У вас нет прав на эту команду.")
+        return
+    await message.answer(f"реакции поставили: {", ".join(user_react)}")
+    user_react.clear()
 
 
 async def is_admin(message: Message, bot: Bot) -> bool:
@@ -48,9 +73,11 @@ async def is_admin(message: Message, bot: Bot) -> bool:
     return member.status in ("administrator", "creator")
 
 
-@router.message(F.text == "/poll")
+@router.message(Command("poll"))
 async def create_poll1(message: Message, state: FSMContext, bot: Bot):
     """Создаём опрос"""
+    if message.chat.type not in ("group", "supergroup"):
+        await message.answer("Эта команда работает только в группах")
     if not await is_admin(message, bot):
         await message.answer("У вас нет прав на эту команду.")
         return
@@ -126,6 +153,12 @@ async def poll_stats(message: Message, bot: Bot):
         f"Не проголосовали: {not_voted} человек ({percent_not:.1f}%)")
 
 
+@router.message(Command("report"))
+async def report_cmd(message: Message):
+    if message.chat.type == "private":
+        await message.answer("бот работает идельно, не пытайся")
+
+
 # @router.message(F.text.lower() == "расскажи анекдот")
 # async def joke(message: Message):
 #     if message.from_user.username:
@@ -173,13 +206,8 @@ async def poll_stats(message: Message, bot: Bot):
 # @router.message(~F.text & ~F.photo)
 # async def no_media(message: Message):
 #     await message.answer("не шли гифки, стикеры и видео))")
-
-
-@router.message(Command("report"))
-async def report_cmd(message: Message):
-    await message.answer("бот работает идельно, не пытайся")
-
-
+#
+#
 # @router.callback_query(F.data == "aga")
 # async def aga(callback: CallbackQuery):
 #     await callback.answer("понятно", show_alert=True)
